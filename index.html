@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+
+<!--
+
+    Amethyst WebRelease page
+    2023 - Anderson Bucchianico
+    All rights reserved
+
+ -->
+
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0 maximum-scale=1.0, user-scalable=0"
+        >
+        <link rel="stylesheet" href="./style.css"/>
+        <title>Game page</title>
+    </head>
+
+    <body>
+        
+        <canvas class="emscripten" id="canvas">
+			Sorry, Your browser is not supported.
+		</canvas>
+        <article>
+            <div>
+                <section>
+                    <img src="media/logo.png" alt="logo"/>
+                </section>
+                <section>
+                    <span>Mandelbrot set</span>
+                    <span>2023</span>
+                </section>
+            </div>
+            <button class="element" onclick="initialize();">Play</button>
+        </article>
+		
+        
+    </body>
+
+    <script>
+        async function initialize() {
+            Module = {
+                print: (function() {
+                    return function(text) {
+                        if (text.includes("ERRR")) {
+                            console.error(text);
+                        } else
+                        if (text.includes("WARN")) {
+                            console.warn(text);
+                        } else {
+                            console.info(text);
+                        }
+                    };
+                })(),
+                canvas: (function() {
+                    return document.getElementById('canvas');
+                })()
+            };
+            Module.arguments = [
+                `-ww${window.innerWidth}`,
+                `-wh${window.innerHeight}`,
+                `-fi${50}`
+            ];
+            document.querySelector("article").remove();
+
+            let script = document.createElement("script");
+            script.text = scriptGlue;
+            document.body.appendChild(script);
+        }
+        async function fetchContentWithPath(path) {
+            let response = await fetch(path);
+            if (response.status == 200 || response.statusText == 'OK') {
+                scriptGlue = await response.text();
+            } else {
+                return `[ERROR] code ${response.status}: ${response.statusText}`;
+            }
+        }
+        
+        let scriptGlue;
+        fetchContentWithPath("./index.js");
+        
+    </script>
+</html>
